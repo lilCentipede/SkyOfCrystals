@@ -1,0 +1,99 @@
+﻿<!DOCTYPE html>
+
+<html>
+	<head>
+		<title>Sky of Crystals</title>
+		<meta charset="utf-8">
+		
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		
+		<script src="three.min.js"></script>
+		<script src="WebGL.js"></script>
+		<script src="vax.js"></script>
+	</head>
+	
+	<body>
+		<script>
+			vaxInit();
+
+			function getRandomInt(min, max) {
+				min = Math.ceil(min);
+				max = Math.floor(max);
+				return Math.floor(Math.random() * (max - min) + min); 
+			}
+			
+			camera = new THREE.PerspectiveCamera( 25, window.innerWidth/window.innerHeight, 400, 3000 );
+			camera.position.set( 0, 0, 0 );
+			camera.lookAt( new THREE.Vector3( 0, 0, -1 ) );
+				
+			scene.background = new THREE.CubeTextureLoader().load( [
+				'bridge/posx.jpg', 'bridge/negx.jpg',
+				'bridge/posy.jpg', 'bridge/negy.jpg',
+				'bridge/posz.jpg', 'bridge/negz.jpg' ] );
+			
+			envTexture = new THREE.CubeTextureLoader().load( [
+				'bridge/posx.jpg', 'bridge/negx.jpg',
+				'bridge/posy.jpg', 'bridge/negy.jpg',
+				'bridge/posz.jpg', 'bridge/negz.jpg' ] );;
+			scene.backgound = envTexture;
+			envTexture.mapping = THREE.CubeRefractionMapping;
+			
+			var n = 1000;
+			var crystals = [];
+			var distance = 400;
+			var add = 30;
+			for(var i = 0 ;i <n;i++){
+				var crystal = new THREE.Mesh(new THREE.OctahedronBufferGeometry(10,1),new THREE.MeshBasicMaterial({envMap:envTexture,refractionRatio: 0.98,side :THREE.BackSide}));
+				var x,y,z;
+				x = getRandomInt(-distance,distance);
+				y = getRandomInt(-distance,distance);
+				z = getRandomInt(-distance,distance);
+				if(x) {x +=add;}
+					else {x -=add;}
+				if(y) {y +=add;}
+					else {y -=add;}
+				if(z) {z +=add;}
+					else {z -=add;}
+				crystal.position.set(x,y,z);
+				crystals.push(crystal);
+				scene.add(crystal);
+			}
+
+			window.addEventListener( "deviceorientation", deviceOrientation, true);
+			
+			function deviceOrientation( event )
+			{
+				var alpha = event.alpha,
+					gamma = event.gamma;
+
+				if( alpha === null ) return;
+				
+				if( gamma>=0 )
+					gamma = 90-gamma;
+				else
+				{
+					alpha = alpha+180;
+					gamma = -90-gamma;
+				}
+									
+				alpha = THREE.Math.degToRad( alpha );
+				gamma = THREE.Math.degToRad( gamma );
+				
+				camera.rotation.set( gamma, alpha, 0, 'YZX' );
+			}
+
+			function animate()
+			{
+				for( var i=0; i<n; i++ )
+					{
+					crystals[i].rotation.y = t;
+					crystals[i].rotation.x = t;
+					}
+			}
+			
+		</script>
+		
+	</body>
+</html>
+
+
